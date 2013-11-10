@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <meta charset="utf-8">
+  <h1>This is clock</h1>
+  <canvas id="test" width="400" height="400" style="border:1px solid #000">
+    
+  </canvas>
+  <p>下一步，看看能不能找到局部重绘的办法。这样子貌似不低碳</p>
+</html>
+<script>
+  var c=document.getElementById("test");
+  var context=c.getContext("2d");
+  var x=200;
+  var y=200;
+  var r=100;
+  function drawClock(context,x,y,r){
+    var PI=Math.PI;
+    context.lineWidth=3;
+    context.strokeStyle="#CCCCCC";
+    context.fillStyle="#EEEEFF";
+    context.beginPath();
+    context.arc(x,y,r+4,0,PI*2,true);
+    context.closePath();
+    context.fill();
+    context.stroke();
+    context.strokeStyle="#CCCCCC";
+    context.lineWidth=2;
+    context.beginPath();
+    context.arc(x,y,r,0,PI*2,true);
+    context.closePath();
+    context.stroke();
+    var X,Y,T,R,X1,Y1,color,lw;
+    r=r-6;
+    for(var i=0;i<60;i++){
+      if(i%5===0){
+        R=.90;
+        color="#666666"
+        lw=3
+      }else{
+        R=.95;
+        color="#999999";
+        lw=2     
+      }
+      T = ( PI*2/360 )*6*i;
+      X = x+(Math.sin(T)*r);
+      Y = y-(Math.cos(T)*r);
+      X1 = x+(Math.sin(T)*r*R);
+      Y1 = y-(Math.cos(T)*r*R);
+      context.lineWidth=lw;
+      context.beginPath();
+      context.moveTo(X,Y);
+      context.strokeStyle=color;
+      context.lineTo(X1,Y1);
+      context.closePath();
+      context.stroke();
+    }
+    context.fillStyle="#000000";
+    context.beginPath();
+    context.arc(200,200,7,0,PI*2,true);
+    context.closePath();
+    context.fill();
+  }
+
+  function setHour(context,hour,x,y,r){
+    context.fillStyle="#666666";
+    context.beginPath();
+    context.arc(200,200,5,0,Math.PI*2,true);
+    context.closePath();
+    context.fill();
+    context.lineWidth=4;
+    var PI=Math.PI;
+    context.beginPath();
+    context.moveTo(200,200);
+    hour=hour%12;
+    var t= hour * PI/6;
+    var X= x + Math.sin(t)*(r*0.5);
+    var Y= y - Math.cos(t)*(r*0.5);
+    context.strokeStyle="#333333";
+    context.lineTo(X,Y);
+    context.closePath();
+    context.stroke();
+  }
+  function setMinute(context,minute,x,y,r){
+    context.fillStyle="#666666";
+    context.beginPath();
+    context.arc(200,200,4,0,Math.PI*2,true);
+    context.closePath();
+    context.fill();
+    context.lineWidth=3;
+    var PI=Math.PI;
+    context.beginPath();
+    context.moveTo(200,200);
+    minute=minute%60;
+    var t= minute * PI/30;
+    var X= x + Math.sin(t)*(r*0.7);
+    var Y= y - Math.cos(t)*(r*0.7);
+    context.strokeStyle="#666666";
+    context.lineTo(X,Y);
+    context.closePath()
+    context.stroke();
+  }
+  function setSecond(context,minute,x,y,r){
+    context.fillStyle="#999999";
+    context.beginPath();
+    context.arc(200,200,3,0,Math.PI*2,true);
+    context.closePath();
+    context.fill();
+    context.lineWidth=2;
+    var PI=Math.PI;
+    context.beginPath();
+    context.moveTo(200,200);
+    minute=minute%60;
+    var t= minute * PI/30;
+    var X= x + Math.sin(t)*(r*0.9);
+    var Y= y - Math.cos(t)*(r*0.9);
+    context.strokeStyle="#999999";
+    context.lineTo(X,Y);
+    context.closePath()
+    context.stroke();
+  }
+  var oldSec;
+  function timeChange(){
+    var temp=new Date();
+    var sec=temp.getSeconds();
+    var h,m;
+    h=temp.getHours();
+    m=temp.getMinutes();
+    h+=m/60;
+    m+=sec/60;
+    if(oldSec!==sec){
+      oldSec=sec;
+      context.fillStyle="#FFFFFF";
+      context.fillRect(0,0,400,400);
+      context.fill();
+      drawClock(context,x,y,r);
+      setHour(context,h,x,y,r);
+      setMinute(context,m,x,y,r);
+      setSecond(context,sec,x,y,r);
+    }
+    setTimeout(timeChange,500);
+  }
+  timeChange();
+</script>
