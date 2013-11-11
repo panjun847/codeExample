@@ -1,10 +1,45 @@
 <!doctype html>
 <html>
+  <style>
+    .clock-hour,.clock-minute,.clock-second{
+      position:absolute;top:0;left:0;z-index:20;display:inline-block;
+      -webkit-transform-origin:top left;
+    }
+    .clock-i{
+      width:200px;
+      height:200px;
+      position:relative;
+      display:inline;
+      top:-190px;
+      left:-202px;
+    }
+    .clock-hour{
+      width:50px;height:4px;background:#333;top:2px
+    }
+    .clock-minute{
+      width:70px;height:3px;background:#666;top:3px;
+    }
+    .clock-second{
+      width:90px;height:2px;background:#999;top:2px
+    }
+  </style>
   <meta charset="utf-8">
   <h1>This is clock</h1>
+  <div>
+    <a href="?css" id='look-css'>查看CSS版</a>
+    <a href="?canvas" id='look-canvas'>查看Canvas版</a>
+  </div>
+  <div>
   <canvas id="test" width="400" height="400" style="border:1px solid #000">
     
   </canvas>
+  <div class="clock-i">
+    <s class="clock-hour"></s>
+    <s class="clock-minute"></s>
+    <s class="clock-second"></s>
+  </div>
+  </div>
+
   <p>下一步，看看能不能找到局部重绘的办法。这样子貌似不低碳</p>
 </html>
 <script>
@@ -139,5 +174,49 @@
     }
     setTimeout(timeChange,500);
   }
+
+  var hourEl=document.querySelector(".clock-hour");
+  var minuteEl=document.querySelector(".clock-minute");
+  var secondEl=document.querySelector(".clock-second");
+  function timeChangeCSS(){
+    var temp=new Date();
+    var sec=temp.getSeconds();
+    var h,m;
+    h=temp.getHours();
+    m=temp.getMinutes();
+    h+=m/60;
+    m+=sec/60;
+    var secdeg=sec*6-90;
+    var mdeg=m*6-90;
+    var hdeg=h*30-90;
+    if(oldSec!==sec){
+      oldSec=sec;
+      hourEl.style["-webkit-transform"]="rotate(0deg)";
+      minuteEl.style["-webkit-transform"]="rotate(0deg)";
+      secondEl.style["-webkit-transform"]="rotate(0deg)";
+      hourEl.style["-webkit-transform"]="rotate("+hdeg+"deg)";     
+      minuteEl.style["-webkit-transform"]="rotate("+mdeg+"deg)";
+      secondEl.style["-webkit-transform"]="rotate("+secdeg+"deg)";
+    }
+    setTimeout(timeChangeCSS,500);
+  }
+var lookcss=true
+if( location.search.indexOf("canvas")>-1 ){
+  lookcss=false
+}
+if(lookcss){
+  hourEl.style.display="inline";
+  minuteEl.style.display="inline";
+  secondEl.style.display="inline";
+  drawClock(context,x,y,r);
+  timeChangeCSS();
+}else{
+  hourEl.style.display="none";
+  minuteEl.style.display="none";
+  secondEl.style.display="none";
   timeChange();
+}
+  
+  //timeChange();
+
 </script>
