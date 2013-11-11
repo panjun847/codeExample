@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+<body>
+  <div id="aaaa">
+    <p>dddddddddddddddddddddddd</p>
+    <p>dddddddddddddddddddddddd</p>
+    <p>dddddddddddddddddddddddd</p>
+    <p>dddddddddddddddddddddddd</p>
+    <p>dddddddddddddddddddddddd</p>
+    <p>dddddddddddddddddddddddd</p>
+  </div>
+</body>
+</html>
+<script>
+var Event={
+ add:function(el,type,handler){
+   var handlers=el.handlers|| (el.handlers={});
+   var handlersType=handlers[type];
+   if(!handlersType){
+    handlersType=handlers[type]=[];
+    this.initFirst(el,type);
+   }
+   handlersType.push(handler);
+ },
+ handler:function(e){
+   var type=e.type;
+   var handlers= this.handlers[type];
+   for(var i=0;i<handlers.length;i++){
+     if(handlers[i].call(this,e)===false){
+        e.preventDefault();
+        e.stopPropagation();
+     }
+   }
+ },
+ remove:function(el,type,handler){
+  var handlers=el.handlers;
+  var typeHandlers
+  if(handlers){
+    typeHandlers=handlers[type];
+    if(typeHandlers){
+      if(handler){
+        for(var i=0,len=typeHandlers.length;i<len;i++){
+          if(typeHandlers[i]===handler){
+            typeHandlers.splice(i,1);break;
+          }
+        }
+      }else{
+        el.handlers[type]=[];
+      }
+    }
+  }
+ },
+ fixEvent:function(e){
+  if(!e.preventDefault){
+    e.preventDefault=function(){
+      e.returnValue=false;
+    }
+  }
+  if(!e.stopPropagation){
+    e.stopPropagation=function(){
+      e.cancelBubble=true;
+    }
+  }
+  return e;
+ },
+ initFirst:function(el,type){
+   var me=this;
+   if(el.addEventListener){
+      el.addEventListener(type,this.handler,false)
+   }else if(el.attachEvent){
+      el.attachEvent("on"+type,function(e){
+        var e=me.fixEvent(e);
+        me.handler.call(this,e);
+      });
+   }else{
+      var h=el["on"+type];
+      if(typeof h=='function'){
+        el.handlers[type].unshift(h);
+      }
+      el["on"+type]=function(e){
+        e = e|| me.fixEvent(window.event);
+        me.handler.call(this,e);
+      }
+   }
+ }
+}
+var a=document.getElementById("aaaa");
+Event.add(a,'click',function(){
+   console.log(arguments);
+   Event.remove(a,'click');
+});
+</script>
